@@ -33,7 +33,8 @@ public class RestController {
 
     @GetMapping("/summary/lazy")
     public ResponseEntity getSummary2() throws IOException {
-        List<S3ObjectSummary> fileSummaryLazily = s3Loader.getFileSummaryLazily();
+        String filePath = "temp";
+        List<S3ObjectSummary> fileSummaryLazily = s3Loader.getFileSummaryLazily(filePath);
 
         return ResponseEntity.ok(fileSummaryLazily);
     }
