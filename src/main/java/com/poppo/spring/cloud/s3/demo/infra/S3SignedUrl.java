@@ -20,7 +20,12 @@ public class S3SignedUrl {
     private String bucket;
 
     public URL generateSignedUrl(String s3ObjectName) {
+        amazonS3Client.generatePresignedUrl()
         return amazonS3Client.generatePresignedUrl(bucket, s3ObjectName, makeOneHourDurationFromNow());
+    }
+
+    interface ObjectList {
+        fun getSignedUrlList(): List<String>
     }
 
     private Date makeOneHourDurationFromNow() {
