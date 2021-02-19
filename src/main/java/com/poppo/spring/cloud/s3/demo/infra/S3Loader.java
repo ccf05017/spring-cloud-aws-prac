@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class S3Loader {
@@ -27,26 +28,45 @@ public class S3Loader {
                 .getObjectSummaries();
     }
 
-    public List<S3ObjectSummary> getFileSummaryLazily() {
-        try {
-            ListObjectsV2Request request = new ListObjectsV2Request()
-                    .withBucketName(bucket)
-                    .withMaxKeys(100);
-            ListObjectsV2Result result;
-            List<S3ObjectSummary> summaries = new ArrayList<>();
+    public List<S3ObjectSummary> getFileSummaryLazily(String filePath) {
+        ListObjectsV2Request request = new ListObjectsV2Request()
+                .withBucketName(bucket)
+                .withPrefix(filePath)
+                .withMaxKeys(2000);
+        ListObjectsV2Result result;
+        List<S3ObjectSummary> summaries = new ArrayList<>();
 
-            do {
-                result = amazonS3Client.listObjectsV2(request);
-                summaries.addAll(result.getObjectSummaries());
+        do {
+            result = amazonS3Client.listObjectsV2(request);
+            summaries.addAll(result.getObjectSummaries());
 
-                String token = result.getNextContinuationToken();
-                request.setContinuationToken(token);
-            } while (result.isTruncated());
+            String token = result.getNextContinuationToken();
+            request.setContinuationToken(token);
+        } while (result.isTruncated());
 
-            return summaries;
-        } catch (SdkClientException e) {
-            e.printStackTrace();;
-        }
-        return null;
+        return summaries;
+    }
+
+    public List<S3ObjectSummary> pickStaticNumber(String filePath, int number) {
+        ListObjectsV2Request request = new ListObjectsV2Request()
+                .withBucketName(bucket)
+                .withPrefix(filePath)
+                .withMaxKeys(number);
+
+        return amazonS3Client.listObjectsV2(request)
+                .getObjectSummaries();
+    }
+
+    public List<String> pickStaticKeys(String folderPath) {
+        // 어차피 최대 1000개까지 밖에 설정 안됨.
+        ListObjectsV2Request request = new ListObjectsV2Request()
+                .withBucketName(bucket)
+                .withPrefix(folderPath);
+
+        return amazonS3Client.listObjectsV2(request)
+                .getObjectSummaries()
+                .stream()
+                .map(S3ObjectSummary::getKey)
+                .collect(Collectors.toList());
     }
 }
