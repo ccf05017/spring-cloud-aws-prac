@@ -1,5 +1,6 @@
 package com.poppo.spring.cloud.s3.demo.infra;
 
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,6 +10,7 @@ import reactor.core.publisher.Mono;
 
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,17 +20,21 @@ class S3SignedUrlTest {
     @Autowired
     private S3SignedUrl s3SignedUrl;
 
+    @Autowired
+    private S3Loader s3Loader;
+
     private WebClient webClient;
 
     @Test
     void createNewSignedUrl() throws URISyntaxException {
         // Signed URL 생성
-        String testFolder = "task01";
-        String testFile = "360FBD2E-D88F-4A11-B78A-62EC87CE28F5.jpeg";
+        String testFolder = "task01/01";
+        List<S3ObjectSummary> summaries = s3Loader.pickStaticNumber(testFolder, 2000);
+        S3ObjectSummary target = summaries.get(0);
 
-        URL signedUrl = s3SignedUrl.generateSignedUrl(testFolder + "/" + testFile);
-
-        assertThat(signedUrl.getPath()).contains(testFile);
+        URL signedUrl = s3SignedUrl.generateSignedUrl(target.getKey());
+        System.out.println("################################");
+        System.out.println(signedUrl.toURI());
 
         // Signed URL 응답 확인
         webClient = WebClient.create();

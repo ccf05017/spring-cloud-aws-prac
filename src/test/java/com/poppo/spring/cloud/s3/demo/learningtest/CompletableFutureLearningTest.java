@@ -1,6 +1,5 @@
 package com.poppo.spring.cloud.s3.demo.learningtest;
 
-import com.amazonaws.services.s3.iterable.S3Objects;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.poppo.spring.cloud.s3.demo.infra.S3Loader;
 import org.junit.jupiter.api.Test;
@@ -62,10 +61,10 @@ public class CompletableFutureLearningTest {
     }
 
     private Callable<S3ObjectSummary> createTask() {
-        return () -> s3Loader.pickJustOne("task01/01");
+        return () -> s3Loader.pickStaticNumber("task01/01", 1).get(0);
     }
 
     private CompletableFuture<S3ObjectSummary> createCompletableFutureTask() {
-        return CompletableFuture.supplyAsync(() -> s3Loader.pickJustOne("task01/01"));
+        return CompletableFuture.supplyAsync(() -> s3Loader.pickStaticNumber("task01/01", 1).get(0));
     }
 }

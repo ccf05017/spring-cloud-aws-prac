@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class S3Loader {
@@ -46,14 +47,26 @@ public class S3Loader {
         return summaries;
     }
 
-    public S3ObjectSummary pickJustOne(String filePath) {
+    public List<S3ObjectSummary> pickStaticNumber(String filePath, int number) {
         ListObjectsV2Request request = new ListObjectsV2Request()
                 .withBucketName(bucket)
                 .withPrefix(filePath)
-                .withMaxKeys(1);
+                .withMaxKeys(number);
+
+        return amazonS3Client.listObjectsV2(request)
+                .getObjectSummaries();
+    }
+
+    public List<String> pickStaticKeys(String folderPath) {
+        // 어차피 최대 1000개까지 밖에 설정 안됨.
+        ListObjectsV2Request request = new ListObjectsV2Request()
+                .withBucketName(bucket)
+                .withPrefix(folderPath);
 
         return amazonS3Client.listObjectsV2(request)
                 .getObjectSummaries()
-                .get(0);
+                .stream()
+                .map(S3ObjectSummary::getKey)
+                .collect(Collectors.toList());
     }
 }

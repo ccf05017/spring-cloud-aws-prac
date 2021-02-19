@@ -4,7 +4,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.reactive.function.client.WebClient;
 
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,11 +22,13 @@ class SignedUrlServiceTest {
     @DisplayName("해당 경로 파일들에 대한 Signed URL을 생성할 수 있다. (블로킹)")
     @Test
     void createSignedUrls() {
-        String filePath = "task01/01";
-        int expectedSize = 1416;
+        String folderPath = "task01/01";
+        int expectedSize = 1000;
 
-        List<String> signedUrls = signedUrlService.createSignedUrl(filePath);
+        List<String> signedUrls = signedUrlService.getSignedUrls(folderPath);
 
         assertThat(signedUrls).hasSize(expectedSize);
+        System.out.println(signedUrls.get(3));
+        System.out.println(signedUrls.get(999));
     }
 }

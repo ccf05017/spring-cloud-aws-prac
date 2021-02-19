@@ -5,6 +5,7 @@ import com.poppo.spring.cloud.s3.demo.infra.S3Loader;
 import com.poppo.spring.cloud.s3.demo.infra.S3SignedUrl;
 import org.springframework.stereotype.Service;
 
+import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,11 +19,12 @@ public class SignedUrlService {
         this.s3SignedUrl = s3SignedUrl;
     }
 
-    public List<String> createSignedUrl(String filePath) {
-        List<S3ObjectSummary> fileSummaryLazily = s3Loader.getFileSummaryLazily(filePath);
+    public List<String> getSignedUrls(final String folderPath) {
+        List<String> keys = s3Loader.pickStaticKeys(folderPath);
 
-        return fileSummaryLazily.stream()
-                .map(S3ObjectSummary::getKey)
+        return keys.stream()
+                .map(s3SignedUrl::generateSignedUrl)
+                .map(URL::toString)
                 .collect(Collectors.toList());
     }
 }
