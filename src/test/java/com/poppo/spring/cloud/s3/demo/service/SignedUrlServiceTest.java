@@ -9,6 +9,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,7 +30,14 @@ class SignedUrlServiceTest {
         List<String> signedUrls = signedUrlService.getSignedUrls(folderPath);
 
         assertThat(signedUrls).hasSize(expectedSize);
-        System.out.println(signedUrls.get(3));
-        System.out.println(signedUrls.get(999));
+    }
+
+    @Test
+    void simpleTest() throws ExecutionException, InterruptedException {
+        String folderPath = "task01/01";
+
+        List<CompletableFuture<String>> signedUrls2 = signedUrlService.getSignedUrls2(folderPath);
+
+        signedUrls2.forEach(it -> assertThat(it.isDone()).isTrue());
     }
 }

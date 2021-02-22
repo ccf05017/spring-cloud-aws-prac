@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,22 +29,11 @@ class S3SignedUrlTest {
     @Test
     void createNewSignedUrl() throws URISyntaxException {
         // Signed URL 생성
-        String testFolder = "task01/01";
-        List<S3ObjectSummary> summaries = s3Loader.pickStaticNumber(testFolder, 2000);
-        S3ObjectSummary target = summaries.get(0);
+        String key = "task01/01/2020-05-10 18.20.59.jpg";
 
-        URL signedUrl = s3SignedUrl.generateSignedUrl(target.getKey());
-        System.out.println("################################");
-        System.out.println(signedUrl.toURI());
+        IntStream.rangeClosed(0, 1000).forEach(it -> s3SignedUrl.generateSignedUrl(key));
+        URL signedUrl = s3SignedUrl.generateSignedUrl(key);
 
-        // Signed URL 응답 확인
-        webClient = WebClient.create();
-
-        HttpStatus status = webClient.get()
-                .uri(signedUrl.toURI())
-                .exchangeToMono(res -> Mono.just(res.statusCode()))
-                .block();
-
-        assertThat(status).isEqualTo(HttpStatus.OK);
+        System.out.println(signedUrl);
     }
 }

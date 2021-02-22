@@ -1,6 +1,5 @@
 package com.poppo.spring.cloud.s3.demo.infra;
 
-import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
@@ -57,7 +56,7 @@ public class S3Loader {
                 .getObjectSummaries();
     }
 
-    public List<String> pickStaticKeys(String folderPath) {
+    public List<String> pickStaticFolder(String folderPath) {
         // 어차피 최대 1000개까지 밖에 설정 안됨.
         ListObjectsV2Request request = new ListObjectsV2Request()
                 .withBucketName(bucket)
@@ -68,5 +67,9 @@ public class S3Loader {
                 .stream()
                 .map(S3ObjectSummary::getKey)
                 .collect(Collectors.toList());
+    }
+
+    public String pickStaticObject(final String filePath) {
+        return amazonS3Client.getObjectAsString(bucket, filePath);
     }
 }
